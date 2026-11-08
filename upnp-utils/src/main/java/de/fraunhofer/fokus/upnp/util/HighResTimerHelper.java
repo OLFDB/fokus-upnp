@@ -27,7 +27,7 @@
 */
 package de.fraunhofer.fokus.upnp.util;
 
-import sun.misc.Perf;
+
 
 /**
  * This package provides methods to measure times with high resolution.
@@ -39,7 +39,7 @@ import sun.misc.Perf;
 public class HighResTimerHelper
 {
 
-  private static Perf perf                   = Perf.getPerf();
+
 
   /** Used during performance evaluation */
   public static long  PERFORMANCE_CORRECTION = 0;
@@ -47,7 +47,7 @@ public class HighResTimerHelper
   /** Retrieves a time stamp for the current time */
   public static long getTimeStamp()
   {
-    return perf.highResCounter();
+    return System.nanoTime();
   }
 
   /**
@@ -62,7 +62,7 @@ public class HighResTimerHelper
    */
   public static long getMicroseconds(long timestamp1, long timestamp2)
   {
-    return (timestamp2 - timestamp1) * 1000000 / perf.highResFrequency();
+    return (timestamp2 - timestamp1) / 1000;
   }
 
 }

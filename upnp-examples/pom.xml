@@ -1,20 +1,19 @@
-<?xml version="1.0"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<?xml version='1.0' encoding='UTF-8'?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>fokus-upnp</artifactId>
     <groupId>de.fraunhofer.fokus</groupId>
-    <version>1.1</version>
+    <version>1.1.1-olf2</version>
   </parent>
   <artifactId>upnp-examples</artifactId>
   <name>upnp-examples</name>
   <url>http://maven.apache.org</url>
   <dependencies>
-	<dependency>
-      		<groupId>de.fraunhofer.fokus</groupId>
-		<artifactId>upnp-gateways</artifactId>
-	</dependency>
+    <dependency>
+      <groupId>de.fraunhofer.fokus</groupId>
+      <artifactId>upnp-gateways</artifactId>
+    </dependency>
   </dependencies>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

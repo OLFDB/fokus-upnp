@@ -87,6 +87,9 @@ public class UPnPDefaults
   /** Time to wait before the first NOTIFY:alive is sent after device startup */
   public static long          DEVICE_INITIAL_NOTIFY_DELAY               = 500;
 
+  /** Upper bound for alive refreshes, so late clients recover from lost search packets. */
+  public static long          DEVICE_MAX_NOTIFY_INTERVAL                = 30000;
+
   /**
    * how many times the init subscription noty messages is send if the connection to the control
    * point can not be created the first time
