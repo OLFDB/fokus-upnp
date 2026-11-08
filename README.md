@@ -35,8 +35,8 @@ with Maven 3.9.9 (wrapper included) on JDK 17 or newer and emits Java 8 bytecode
 
 `upnp-utils` uses `System.nanoTime()` instead of the removed `sun.misc.Perf` API.
 `upnp-core` uses the Log4j 1.2 API adapter backed by Log4j 2, rather than bundling
-Log4j 1.x. Consumers should provide `org.apache.logging.log4j:log4j-core` as their
-logging implementation. RXTX and JCalendar remain regular Maven dependencies of
+Log4j 1.x. The matching `org.apache.logging.log4j:log4j-core` runtime is declared
+explicitly because the compatibility adapter requires it. RXTX and JCalendar remain regular Maven dependencies of
 the optional gateway/GUI modules; no dependency classes are embedded in the
 core or utilities JARs.
 
@@ -46,3 +46,14 @@ modules use group ID `com.github.OLFDB.fokus-upnp`, artifact ID `upnp-core` or
 a Maven repository. A core-only consumer needs `upnp-core`; `upnp-utils` is
 transitive. Build locally with `-pl upnp-core -am` to omit the example and GUI
 modules.
+
+### Reliable discovery for late clients
+
+Devices repeat SSDP alive announcements at least every 30 seconds while retaining
+an advertised cache lifetime of 1800 seconds. This provides a bounded fallback
+when a client starts later and its multicast M-SEARCH request is lost. Explicit
+M-SEARCH processing is unchanged; the SSDP log records incoming searches and
+outgoing announcement types and interfaces. Announcement callbacks and shutdown
+are serialized, so a queued callback cannot resurrect the device after byebye.
+`UPnPDefaults.DEVICE_MAX_NOTIFY_INTERVAL` controls the maximum interval in
+milliseconds. Shorter cache lifetimes still refresh at half their own lifetime.

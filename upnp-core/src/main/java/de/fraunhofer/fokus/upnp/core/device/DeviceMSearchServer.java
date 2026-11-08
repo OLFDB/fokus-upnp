@@ -122,6 +122,9 @@ public class DeviceMSearchServer implements IEventListener
       {
         return;
       }
+      logger.info("Received M-SEARCH from " + messageObject.getSourceAddress() +
+        " on " + socketStructure.getHostAddress().getHostAddress() +
+        "; responses=" + result.getMessageCount());
       // create list of packets that has to be sent
       for (int i = 0; i < result.getMessageCount(); i++)
       {

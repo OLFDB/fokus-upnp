@@ -4,7 +4,7 @@
   <parent>
     <artifactId>fokus-upnp</artifactId>
     <groupId>de.fraunhofer.fokus</groupId>
-    <version>1.1.1-olf1</version>
+    <version>1.1.1-olf2</version>
   </parent>
   <artifactId>upnp-gateways</artifactId>
   <name>upnp-gateways</name>

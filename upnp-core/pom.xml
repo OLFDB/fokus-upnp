@@ -4,7 +4,7 @@
   <parent>
     <artifactId>fokus-upnp</artifactId>
     <groupId>de.fraunhofer.fokus</groupId>
-    <version>1.1.1-olf1</version>
+    <version>1.1.1-olf2</version>
   </parent>
   <artifactId>upnp-core</artifactId>
   <name>upnp-core</name>
@@ -17,6 +17,18 @@
     <dependency>
       <groupId>de.fraunhofer.fokus</groupId>
       <artifactId>upnp-utils</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.13.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>2.26.1</version>
+      <scope>runtime</scope>
     </dependency>
   </dependencies>
   <properties>

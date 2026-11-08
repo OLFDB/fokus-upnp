@@ -42,7 +42,7 @@ import de.fraunhofer.fokus.upnp.util.threads.IEventListener;
 
 /**
  * This class is responsible for the advertisement of the device. It sends discovery messages in a
- * regular interval, which must be longer than 30 minutes. A device unavailable message will be send
+ * regular interval bounded independently of the advertised cache lifetime. A device unavailable message is sent
  * out at the termination device.
  * 
  * @author icu, Alexander Koenig
@@ -53,6 +53,10 @@ public class DeviceNotifyAdvertiser implements IEventListener
   protected static Logger logger     = Logger.getLogger("upnp.ssdp");
 
   private long            wakeupTime = 0;
+
+  private boolean         initialized;
+
+  private boolean         terminated;
 
   protected Device        device;
 
@@ -71,8 +75,9 @@ public class DeviceNotifyAdvertiser implements IEventListener
   /**
    * Send all NOTIFY messages for a certain ssdp type (byebye or alive) to all external interfaces
    */
-  public void sendNotifyMessages(String messageType)
+  public synchronized void sendNotifyMessages(String messageType)
   {
+    if (terminated && !SSDPConstant.SSDP_BYEBYE.equals(messageType)) return;
     // send to all associated multicast sockets
     Vector socketStructures = device.getSocketStructures();
     for (int j = 0; j < socketStructures.size(); j++)
@@ -87,8 +92,9 @@ public class DeviceNotifyAdvertiser implements IEventListener
   /**
    * Send all NOTIFY messages for a certain ssdp type (byebye or alive) to one external interface
    */
-  public void sendNotifyMessagesToSocketStructure(String messageType, DeviceHostAddressSocketStructure socketStructure)
+  public synchronized void sendNotifyMessagesToSocketStructure(String messageType, DeviceHostAddressSocketStructure socketStructure)
   {
+    if (terminated && !SSDPConstant.SSDP_BYEBYE.equals(messageType)) return;
     Vector messages =
       NotifyMessageBuilder.createAllMessages(device,
         socketStructure.getHTTPServerAddress(),
@@ -99,7 +105,8 @@ public class DeviceNotifyAdvertiser implements IEventListener
     for (int i = 0; i < messages.size(); i++)
     {
       String currentMessage = (String)messages.elementAt(i);
-      logger.info("sending " + (i + 1) + " NOTIFY message.");
+      logger.info("Sending " + messageType + " NOTIFY " + (i + 1) + "/" + messages.size() +
+        " on " + socketStructure.getHostAddress().getHostAddress());
 
       sendNotifyMessageToMulticastSocket(socketStructure.getSSDPMulticastSocket(),
         device.getSSDPMulticastSocketAddress(),
@@ -144,8 +151,10 @@ public class DeviceNotifyAdvertiser implements IEventListener
   /**
    * Stops sending discovery message and sends device unavailable message.
    */
-  public void terminate()
+  public synchronized void terminate()
   {
+    if (terminated) return;
+    terminated = true;
     logger.info("terminating device....");
     device.getDeviceEventThread().unregister(this);
 
@@ -158,23 +167,29 @@ public class DeviceNotifyAdvertiser implements IEventListener
    * 
    * @see de.fraunhofer.fokus.upnp.util.threads.IEventListener#triggerEvents()
    */
-  public void triggerEvents()
+  /** Monotonic milliseconds; overridable for deterministic scheduler tests. */
+  protected long now()
   {
-    if (wakeupTime == 0)
+    return System.nanoTime() / 1000000L;
+  }
+
+  public synchronized void triggerEvents()
+  {
+    if (terminated) return;
+    long currentTime = now();
+    if (!initialized)
     {
-      // first send a byebye to unregister device in control points for possible past start of the
-      // device
+      initialized = true;
+      // Clear stale discovery state left by a previous process.
       sendNotifyMessages(SSDPConstant.SSDP_BYEBYE);
-      wakeupTime = System.currentTimeMillis() + UPnPDefaults.DEVICE_INITIAL_NOTIFY_DELAY;
+      wakeupTime = currentTime + UPnPDefaults.DEVICE_INITIAL_NOTIFY_DELAY;
     }
-    if (System.currentTimeMillis() > wakeupTime)
+    if (currentTime >= wakeupTime)
     {
-      // send alive messages
       sendNotifyMessages(SSDPConstant.SSDP_ALIVE);
-
-      long sleepTime = device.getMaxage() * 1000 / 2;
-
-      wakeupTime = System.currentTimeMillis() + sleepTime;
+      long cacheRefresh = Math.max(1L, device.getMaxage() * 1000L / 2);
+      long interval = Math.min(cacheRefresh, Math.max(1000L, UPnPDefaults.DEVICE_MAX_NOTIFY_INTERVAL));
+      wakeupTime = currentTime + interval;
     }
   }
 
