@@ -23,3 +23,26 @@ http://upnp.fokus.fraunhofer.de
 
 Copyright (C) Fraunhofer FOKUS, 2011
 http://www.fokus.fraunhofer.de
+
+## OLFDB maintenance fork
+
+This fork preserves the original packages and API. It builds all five modules
+with Maven 3.9.9 (wrapper included) on JDK 17 or newer and emits Java 8 bytecode:
+
+```sh
+./mvnw clean install
+```
+
+`upnp-utils` uses `System.nanoTime()` instead of the removed `sun.misc.Perf` API.
+`upnp-core` uses the Log4j 1.2 API adapter backed by Log4j 2, rather than bundling
+Log4j 1.x. Consumers should provide `org.apache.logging.log4j:log4j-core` as their
+logging implementation. RXTX and JCalendar remain regular Maven dependencies of
+the optional gateway/GUI modules; no dependency classes are embedded in the
+core or utilities JARs.
+
+JitPack builds this repository using JDK 17 and the Maven wrapper. Individual
+modules use group ID `com.github.OLFDB.fokus-upnp`, artifact ID `upnp-core` or
+`upnp-utils`, and a full commit SHA as the version. Add `https://jitpack.io` as
+a Maven repository. A core-only consumer needs `upnp-core`; `upnp-utils` is
+transitive. Build locally with `-pl upnp-core -am` to omit the example and GUI
+modules.
